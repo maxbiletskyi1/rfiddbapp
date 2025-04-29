@@ -33,6 +33,8 @@
             idLbl = new Label();
             nameInput = new TextBox();
             idInput = new TextBox();
+            label1 = new Label();
+            messageLbl = new Label();
             SuspendLayout();
             // 
             // checkBtn
@@ -78,11 +80,28 @@
             idInput.Size = new Size(125, 27);
             idInput.TabIndex = 4;
             // 
+            // label1
+            // 
+            label1.Location = new Point(0, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(100, 23);
+            label1.TabIndex = 0;
+            // 
+            // messageLbl
+            // 
+            messageLbl.AutoSize = true;
+            messageLbl.Location = new Point(552, 183);
+            messageLbl.Name = "messageLbl";
+            messageLbl.Size = new Size(0, 20);
+            messageLbl.TabIndex = 5;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(922, 632);
+            Controls.Add(messageLbl);
+            Controls.Add(label1);
             Controls.Add(idInput);
             Controls.Add(nameInput);
             Controls.Add(idLbl);
@@ -102,5 +121,7 @@
         private Label idLbl;
         private TextBox nameInput;
         private TextBox idInput;
+        private Label label1;
+        private Label messageLbl;
     }
 }

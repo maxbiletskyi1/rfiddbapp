@@ -146,3 +146,133 @@ Processed: 0611FD
 Raw: [9C0611FD01]
 Processed: 0611FD
 
+sleep 7 seconds + reception filter 
+Raw: [
+Processed: 
+Raw: AC0611FD01]
+Processed: 
+Raw: [AD0611FD01]
+Processed: 0611FD
+The thread '.NET TP Worker' (996) has exited with code 0 (0x0).
+The thread 45256 has exited with code 0 (0x0).
+Raw: [B20611FD01]
+Processed: 0611FD
+Raw: [AF0611FD01]
+Processed: 0611FD
+Raw: [B00611FD01]
+Processed: 0611FD
+Raw: [
+Processed: 
+Raw: B00611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: AE0611FD01]
+Processed: 
+Raw: [960611FD01]
+Processed: 0611FD
+Raw: [890611FD01]
+Processed: 0611FD
+Raw: [8B0611FD01]
+Processed: 0611FD
+Raw: [8A0611FD01]
+Processed: 0611FD
+Raw: [8B0611FD01]
+Processed: 0611FD
+Raw: [8B0611FD01]
+Processed: 0611FD
+Raw: [8A0611FD01]
+Processed: 0611FD
+Raw: [920611FD01]
+Processed: 0611FD
+
+
+Split + For loop:
+
+Multitag: 070F76 - no, the rest - yes
+Processed: 070F76
+Raw: 501][A50611FD01][8B070F7601][A40611FD01][8B070F7601][A3070F7501][A50611FD01][8D070F7601][A2070F7501][A80611FD01][8C070F7601]
+Processed: 070F76
+The thread '.NET TP Worker' (3668) has exited with code 0 (0x0).
+Raw: [A80611FD01][8C070F7601]
+Processed: 070F76
+The thread '.NET TP Worker' (25212) has exited with code 0 (0x0).
+Raw: [A2070F7501][A90611FD01][8B070F7601]
+Processed: 070F76
+The thread 22032 has exited with code 0 (0x0).
+Raw: [A2070F7501][8B070F7601]
+Processed: 070F76
+Raw: [A5070F7501][AB0611FD01]
+Processed: 
+Raw: [B5070F7501][A3070F7601]
+Processed: 
+Raw: [AD070F7501][890611FD01][A8070F7601]
+Processed: 0611FD
+Raw: [94070F7501][890611FD01][A0070F7601]
+Processed: 070F76
+Raw: [98070F7501][890611FD01][A0070F7601]
+Processed: 070F76
+Raw: [9B070F7501][890611FD01][A0070F7601]
+Processed: 070F76
+Raw: [98070F7501][880611FD01][A0070F7601]
+Processed: 070F76
+Raw: [880611FD01][AB070F7501][A9070F7601]
+Processed: 0611FD
+Raw: [890611FD01][A9070F7601][AC070F7501]
+Processed: 0611FD
+Raw: [8B0611FD01][A9070F7601][AC070F7501]
+Processed: 0611FD
+Raw: [8A0611FD01][AB070F7601]
+Processed: 0611FD
+Raw: [AD070F7501][890611FD01][AA070F7601]
+Processed: 0611FD
+Raw: [AC070F7501][890611FD01][AC070F7601]
+Processed: 0611FD
+Raw: [AB070F7501][8A0611FD01][AB070F7601]
+Processed: 0611FD
+Raw: [A9070F7501][930611FD01][A4070F7601]
+Processed: 0611FD
+Raw: [87070F7501][A80611FD01]
+Processed: 070F75
+Raw: [88070F7501][A70611FD01][A7070F7601]
+Processed: 070F75
+The program '[40220] rfiddbapp.exe' has exited with code 0 (0x0).
+
+
+Two tags:
+Raw: [8E0611FD01][B1070F7501]
+Processed: 0611FD
+Raw: [8B0611FD01]
+Processed: 0611FD
+Raw: [A1070F7501][8B0611FD01]
+Processed: 0611FD
+Raw: [A7070F7501][8B0611FD01]
+Processed: 0611FD
+Raw: [A0070F7501][8B0611FD01]
+Processed: 0611FD
+Raw: [AB070F7501][8B0611FD01]
+Processed: 0611FD
+Raw: [8B0611FD01][88070F7501]
+Processed: 070F75
+Raw: [8B0611FD01]
+Processed: 0611FD
+Raw: [9B070F7501]
+Processed: 070F75
+Raw: [8B0611FD01][AD070F7501]
+Processed: 0611FD
+Raw: [8B0611FD01][A9070F7501]
+Processed: 0611FD
+Raw: [8E0611FD01][A1070F7501]
+Processed: 0611FD
+Raw: [8C0611FD01][86070F7501]
+Processed: 070F75
+Raw: [990611FD01][87070F7501]
+Processed: 070F75
+Raw: [9E0611FD01][8B070F7501]
+Processed: 070F75
+Raw: [890611FD01][9B070F7501]
+Processed: 070F75
+Raw: [8B0611FD01][A1070F7501]
+Processed: 0611FD
+The program '[2708] rfiddbapp.exe' has exited with code 0 (0x0).
+

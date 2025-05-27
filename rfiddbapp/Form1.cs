@@ -73,20 +73,19 @@ namespace rfiddbapp
                         string result = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
                          
                         (string id, int receptionLevel) = ParseId(result);
-                        //if (receptionLevel <= 160 && !string.IsNullOrEmpty(id)) 
-                        //{
+                        if (receptionLevel <= 160 && !string.IsNullOrEmpty(id)) 
+                        {
                             string accessResult = CheckAccess(id);
-                            //Debug
-                            Debug.WriteLine("Raw: " + result);
-                            Debug.WriteLine("Processed: " + id);
-                            //UpdateLabel(result);
                             UpdateLabel(accessResult);
-                        /*}
-                        else if (receptionLevel > 160)
+                        }
+                        else
                         {
                             UpdateLabel("Pas de tag a proximite");
-                        }*/
-                        Task.Delay(10000).Wait();
+                        }
+                        //Debug
+                        Debug.WriteLine("Raw: " + result);
+                        Debug.WriteLine("Processed: " + id);
+                        Task.Delay(8000).Wait();
                     }
                     
                 }
@@ -142,57 +141,69 @@ namespace rfiddbapp
         {
             if (string.IsNullOrEmpty(input)) return ("", 0);
 
-            // Find the last complete tag
-            int lastOpenBracket = input.LastIndexOf('[');
-            int lastCloseBracket = input.LastIndexOf(']');
-            if (lastOpenBracket == -1 || lastCloseBracket == -1 || lastCloseBracket < lastOpenBracket)
-                return ("", 0);
+            // Separate tags based on '[' and put inside the array
+            string[] tags = input.Split(new[] { '[' }, StringSplitOptions.RemoveEmptyEntries);
+            if (tags.Length < 1) return ("", 0); //If 0 tags return 0
 
-            string onehalf = "";
-            if (input[0] == '[' && input.Length == 1)
+            // Filter each tag with reception level <= 160
+            List<string> validTags = new List<string>();
+            foreach (string tag in tags)
             {
-                onehalf = "[";
+                if (!tag.EndsWith("]")) continue; // Skip incomplete tags
+                string rawId = tag.TrimEnd(']'); //remove ]
+                if (rawId.Length < 2) continue;
+
+                // Check reception level (first two characters)
+                string receptionHex = rawId.Substring(0, 2);
+                try
+                {
+                    int receptionLevel = Convert.ToInt32(receptionHex, 16);
+                    if (receptionLevel <= 160)
+                    {
+                        validTags.Add(rawId); // Keep tag without brackets
+                    }
+                }
+                catch
+                {
+                    continue; // Skip tags with invalid hex
+                }
             }
-            if (input[0] != '[' && input.Length > 11)
-            {
-                onehalf = onehalf + input;
-                input = onehalf;
-            }
 
-            // Extract the last tag (e.g., [A00708FD01])
-            string lastTag = input.Substring(lastOpenBracket, lastCloseBracket - lastOpenBracket + 1);
-            if (lastTag.Length < 3 || lastTag[0] != '[' || lastTag[lastTag.Length - 1] != ']')
-                return ("", 0);
+            // Get the last tag from valid tags
+            if (validTags.Count < 1) return ("", 0); // No valid tags
+            string lastTag = validTags[validTags.Count - 1];
+            if (lastTag.Length < 2) return ("", 0);
 
-            // Remove brackets
-            string rawId = lastTag.Substring(1, lastTag.Length - 2);
-            if (rawId.Length < 2) return ("", 0);
-
-            // Extract reception level (first two characters, e.g., "A0")
-            string receptionHex = rawId.Substring(0, 2);
-            int receptionLevel;
+            // Extract reception level
+            string receptionHexFinal = lastTag.Substring(0, 2);
+            int receptionLevelFinal;
             try
             {
-                receptionLevel = Convert.ToInt32(receptionHex, 16); // Convert hex to decimal
+                receptionLevelFinal = Convert.ToInt32(receptionHexFinal, 16);
             }
             catch
             {
-                return ("", 0); // Invalid hex
+                return ("", 0);
             }
 
-            // Extract ID (e.g., 0708FD from A00708FD01)
+            // Extract ID (e.g., 0611FD from A00611FD01)
             string id = "";
-            if (rawId.Length == 10)
+            if (lastTag.Length == 10) // e.g., A00611FD01
             {
-                id = rawId.Substring(2, 6); // Skip first 2 chars (reception + 2), take 6 chars
+                id = lastTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
             }
-            else if (rawId.Length == 9)
+            else if (lastTag.Length == 9) // e.g., 90611FD01
             {
-                id = rawId.Substring(1, 6); // Skip first 1 chars (reception + 1), take 6 chars
+                id = lastTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
+            }
+            else if (lastTag.Length == 8) // e.g., 060611FD
+            {
+                id = lastTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
             }
 
-            return (id, receptionLevel);
+            return (id, receptionLevelFinal);
         }
+
 
         // Mettre a jour le label
         private void UpdateLabel(string text)

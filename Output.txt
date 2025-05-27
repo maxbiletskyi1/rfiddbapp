@@ -1,0 +1,148 @@
+Release
+Raw: [900611FD01][920611FD01][930611FD01][930611FD01][900611FD01][910611FD01][900611FD01][900611FD01][8F0611FD01]
+Processed: 0611FD
+Raw: [
+Processed: 
+'rfiddbapp.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.13\System.ComponentModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+Raw: 900611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 8E0611FD01]
+Processed: 
+The thread 18860 has exited with code 0 (0x0).
+The thread '.NET TP Worker' (6668) has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: 8B0611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+The thread '.NET TP Worker' (19176) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (22876) has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 8E0611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 880611FD01]
+Processed: 
+The thread '.NET TP Worker' (41872) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (16728) has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: 880611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+The thread '.NET TP Worker' (35340) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (35016) has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+The thread '.NET TP Worker' (27700) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (36724) has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+The thread '.NET TP Worker' (41220) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (41940) has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: 880611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 880611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 890611FD01]
+Processed: 
+Raw: [
+Processed: 
+Raw: 880611FD01]
+Processed: 
+The thread '.NET TP Worker' (27732) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (36824) has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: 860611FD01]
+Processed: 
+The thread '.NET TP Worker' (41368) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (20772) has exited with code 0 (0x0).
+
+
+Debug, stop points
+'rfiddbapp.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.13\netstandard.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+The thread '.NET TP Worker' (42248) has exited with code 0 (0x0).
+Raw: [900611FD01]
+Processed: 0611FD
+The thread '.NET TP Worker' (18796) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (44236) has exited with code 0 (0x0).
+'rfiddbapp.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.13\System.ComponentModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+Raw: [8F0611FD01][8E0611FD01]
+Processed: 0611FD
+Raw: [8D0611FD01]
+Processed: 0611FD
+The thread 3960 has exited with code 0 (0x0).
+The thread '.NET TP Worker' (25780) has exited with code 0 (0x0).
+The thread '.NET TP Worker' (26756) has exited with code 0 (0x0).
+
+
+sleep 10 seconds
+Raw: [9D0611FD01][9E0611FD01][9E0611FD01][9E0611FD01]
+Processed: 0611FD
+'rfiddbapp.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.13\System.ComponentModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+Raw: [9A0611FD01]
+Processed: 0611FD
+The thread '.NET TP Worker' (39624) has exited with code 0 (0x0).
+Raw: [9D0611FD01]
+Processed: 0611FD
+The thread 3572 has exited with code 0 (0x0).
+Raw: [9B0611FD01][9A0611FD01]
+Processed: 0611FD
+Raw: [9C0611FD01]
+Processed: 0611FD
+Raw: [9A0611FD01]
+Processed: 0611FD
+Raw: [9A0611FD01]
+Processed: 0611FD
+Raw: [9A0611FD01]
+Processed: 0611FD
+Raw: [9B0611FD01]
+Processed: 0611FD
+Raw: [9A0611FD01]
+Processed: 0611FD
+Raw: [A20611FD01]
+Processed: 0611FD
+Raw: [9F0611FD01]
+Processed: 0611FD
+Raw: [9E0611FD01]
+Processed: 0611FD
+Raw: [
+Processed: 
+Raw: 9E0611FD01][990611FD01]
+Processed: 0611FD
+Raw: [9C0611FD01]
+Processed: 0611FD
+

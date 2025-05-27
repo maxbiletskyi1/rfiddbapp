@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace rfiddbapp
 {
@@ -72,18 +73,20 @@ namespace rfiddbapp
                         string result = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
                          
                         (string id, int receptionLevel) = ParseId(result);
-                        if (receptionLevel <= 160 && !string.IsNullOrEmpty(id))
-                        {
+                        //if (receptionLevel <= 160 && !string.IsNullOrEmpty(id)) 
+                        //{
                             string accessResult = CheckAccess(id);
                             //Debug
+                            Debug.WriteLine("Raw: " + result);
+                            Debug.WriteLine("Processed: " + id);
                             //UpdateLabel(result);
                             UpdateLabel(accessResult);
-                        }
+                        /*}
                         else if (receptionLevel > 160)
                         {
                             UpdateLabel("Pas de tag a proximite");
-                        }
-                        Task.Delay(1000).Wait();
+                        }*/
+                        Task.Delay(10000).Wait();
                     }
                     
                 }
@@ -137,16 +140,35 @@ namespace rfiddbapp
         // Fonction pour parser l'ID du badge
         private (string id, int receptionLevel) ParseId(string input)
         {
-            if (string.IsNullOrEmpty(input) || input[0] != '[') return ("", 0);
+            if (string.IsNullOrEmpty(input)) return ("", 0);
 
-            int start = 1;
-            int length = input.IndexOf(']') - 1;
-            if (length <= 0) return ("", 0);
+            // Find the last complete tag
+            int lastOpenBracket = input.LastIndexOf('[');
+            int lastCloseBracket = input.LastIndexOf(']');
+            if (lastOpenBracket == -1 || lastCloseBracket == -1 || lastCloseBracket < lastOpenBracket)
+                return ("", 0);
 
-            string rawId = input.Substring(start, length);
+            string onehalf = "";
+            if (input[0] == '[' && input.Length == 1)
+            {
+                onehalf = "[";
+            }
+            if (input[0] != '[' && input.Length > 11)
+            {
+                onehalf = onehalf + input;
+                input = onehalf;
+            }
+
+            // Extract the last tag (e.g., [A00708FD01])
+            string lastTag = input.Substring(lastOpenBracket, lastCloseBracket - lastOpenBracket + 1);
+            if (lastTag.Length < 3 || lastTag[0] != '[' || lastTag[lastTag.Length - 1] != ']')
+                return ("", 0);
+
+            // Remove brackets
+            string rawId = lastTag.Substring(1, lastTag.Length - 2);
             if (rawId.Length < 2) return ("", 0);
 
-            // Extract first two characters as reception level (in hex)
+            // Extract reception level (first two characters, e.g., "A0")
             string receptionHex = rawId.Substring(0, 2);
             int receptionLevel;
             try
@@ -158,13 +180,16 @@ namespace rfiddbapp
                 return ("", 0); // Invalid hex
             }
 
-            // Extract the rest as ID
-            string id = rawId.Length switch
+            // Extract ID (e.g., 0708FD from A00708FD01)
+            string id = "";
+            if (rawId.Length == 10)
             {
-                10 => rawId.Substring(2, 6),
-                9 => rawId.Substring(1, 6),
-                _ => rawId
-            };
+                id = rawId.Substring(2, 6); // Skip first 2 chars (reception + 2), take 6 chars
+            }
+            else if (rawId.Length == 9)
+            {
+                id = rawId.Substring(1, 6); // Skip first 1 chars (reception + 1), take 6 chars
+            }
 
             return (id, receptionLevel);
         }

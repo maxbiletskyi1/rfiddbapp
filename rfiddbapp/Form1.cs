@@ -1,212 +1,130 @@
 using MySql.Data.MySqlClient;
 using System;
-using System.Data;
-using System.IO.Ports;
-using System.Threading;
-using System.Data.SqlTypes;
 using System.Net.Sockets;
 using System.Net;
-using MySqlX.XDevAPI;
-using Org.BouncyCastle.Bcpg;
 using System.Text;
-using MySqlX.XDevAPI.Common;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using rfiddbapp;
-using Org.BouncyCastle.Asn1.Cmp;
+using System.Windows.Forms;
+
 namespace rfiddbapp
 {
-    //Lecture de la BD
     public partial class Form1 : Form
     {
-        static MySqlConnection db = new MySqlConnection("server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!");
-        static string scannedId;
-        static string scannedMarqueT = "";
-
-        static string id_Badge;
-        static string MarqueT = "";
+        private readonly AccessChecker accessChecker;
 
         public Form1()
         {
             InitializeComponent();
-            SocketReader.Socket();
-            readAsyncData();
+            accessChecker = new AccessChecker(messageLbl); // Pass the label to update it directly
+
         }
 
-        private async void readAsyncData()
+        private async void Form1_Load(object sender, EventArgs e)
         {
-            //btnStart.Enabled = false; // Disable button to prevent multiple clicks
-            await Task.Run(() =>
-            {
-                SocketReader.ReadData();
-            });
-            //btnStart.Enabled = true;  // Re-enable button after task finishes+
+            await accessChecker.InitializeAsync();
+            await Task.Run(() => accessChecker.StartReadingRFID());
         }
+    }
 
+    public class AccessChecker
+    {
+        private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
+        private readonly MySqlConnection db = new MySqlConnection(connectionString);
+        private readonly Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private static readonly IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("192.168.30.10"), 10001);
+        private readonly Label messageLabel;
 
-        void readDB(string name, string id)
+        public AccessChecker(Label label)
         {
-            
-            string query = "SELECT * FROM Badge;";
-            /*if (idInput.Text != "" && nameInput.Text != "")
-            {
-                scannedId = idInput.Text;
-                scannedMarqueT = nameInput.Text;
-            }
-            else
-            {
-                MessageBox.Show("Le champ ne peut pas etre vide!");
-            }*/
-            if (db.State == ConnectionState.Open)
-            {
-                using (MySqlCommand cmd = new MySqlCommand(query, db))
-                {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.IsClosed.Equals(false))
-                        {
-                            while (reader.Read()) // Loop through results
-                            {
-                                id_Badge = reader.GetString("id_Badge");
-                                MarqueT = reader.GetString("MarqueT");
-                                Console.WriteLine($"ID: {id_Badge}, Marque Tag: {MarqueT}");
-                                //if (id_Badge == scannedId && MarqueT == scannedMarqueT)
-                                if (id_Badge == SocketReader.toOutput)
-                                {
-                                    messageLbl.Text = "Access granted";
-                                    MessageBox.Show(SocketReader.toOutput);
-                                    break;
-                                }
-                            }
-                            //if (id_Badge != scannedId || MarqueT != scannedMarqueT)
-                            if (id_Badge != SocketReader.toOutput)
-                            {
-                                messageLbl.Text = "Access denied";
-                                MessageBox.Show(SocketReader.toOutput);
-                            }
-                        }
-                    }
-                }
-            }
+            messageLabel = label;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        public async Task InitializeAsync()
         {
             try
             {
-                db.Open();
-                if (db.State == ConnectionState.Open)
+                await db.OpenAsync();
+                socket.Connect(endpoint);
+                UpdateLabel("Connected - Waiting for RFID");
+            }
+            catch (Exception ex)
+            {
+                UpdateLabel($"Connection failed: {ex.Message}");
+            }
+        }
+
+        public void StartReadingRFID()
+        {
+            try
+            {
+                byte[] buffer = new byte[256];
+                while (true)
                 {
-                    MessageBox.Show("Connection succesful");
+                    int bytesReceived = socket.Receive(buffer);
+                    if (bytesReceived > 0)
+                    {
+                        string result = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
+                        string id = ParseId(result);
+                        if (!string.IsNullOrEmpty(id))
+                        {
+                            string accessResult = CheckAccess(id);
+                            UpdateLabel(accessResult);
+                        }
+                    }
+                    Task.Delay(2000).Wait(); // Delay to prevent overwhelming the system
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Connection failed! ", ex.Message);
+                UpdateLabel($"RFID reading error: {ex.Message}");
             }
         }
 
-        private void checkBtn_Click(object sender, EventArgs e)
+        private string CheckAccess(string id)
         {
-            readDB(MarqueT, id_Badge);
+            try
+            {
+                string query = "SELECT COUNT(*) FROM Badge WHERE id_Badge = @Id";
+                using (var cmd = new MySqlCommand(query, db))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    return count > 0 ? "Access Allowed " + id : "Access Denied " + id;
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+        }
+
+        private string ParseId(string input)
+        {
+            if (string.IsNullOrEmpty(input) || input[0] != '[') return "";
+
+            int start = 1;
+            int length = input.IndexOf(']') - 1;
+            if (length <= 0) return "";
+
+            string id = input.Substring(start, length);
+            return id.Length switch
+            {
+                10 => id.Substring(2, 6),
+                9 => id.Substring(1, 6),
+                _ => id
+            };
+        }
+
+        private void UpdateLabel(string text)
+        {
+            if (messageLabel.InvokeRequired)
+            {
+                messageLabel.Invoke(new Action(() => messageLabel.Text = text));
+            }
+            else
+            {
+                messageLabel.Text = text;
+            }
         }
     }
 }
-
-//Lecture de tag RFID
-public class SocketReader
-{
-    //static Thread TlectureRFID = new Thread(ReadData);
-    //static TcpClient client = new TcpClient();
-    static IPAddress address = IPAddress.Parse("192.168.30.10");
-    static IPEndPoint endpoint = new IPEndPoint(address, 10001);
-    static Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    static byte[] responseBytes = new byte[256];
-    static char[] responseChars = new char[256];
-    public static string result = "";
-    public static string toOutput = "";
-
-    public static void Socket()
-    {
-        try
-        {
-            //client.Connect(endpoint);
-            socket.Connect(endpoint);
-            MessageBox.Show("Connected to socket!");
-            // Add code to read from the socket
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error connecting to socket: {ex.Message}");
-        }
-    }
-
-    // https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket?view=net-9.0
-
-    public static void ReadData()
-    {
-        try
-        {
-            while (true)
-            {
-                //socket.Blocking = false;
-                Thread.Sleep(2000);
-                int bytesReceived = socket.Receive(responseBytes);
-
-                // Receiving 0 bytes means EOF has been reached
-                if (bytesReceived == 0) break;
-
-                // Convert byteCount bytes to ASCII characters using the 'responseChars' buffer as destination
-                int charCount = Encoding.ASCII.GetChars(responseBytes, 0, bytesReceived, responseChars, 0);
-
-                // Print the contents of the 'responseChars' buffer to Console.Out
-                result = new string(responseChars);
-
-                //MessageBox.Show(result[3..9]);
-                MessageBox.Show(ParseId(result));
-
-                toOutput = ParseId(result);
-
-                //socket.Blocking = true;
-
-
-                //break;
-            }
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error: {ex.Message}");
-        }
-    }
-    //[A60611FD01] or [60611FD01]
-    public static string ParseId(string result)
-    {
-        toOutput = "";
-        if (result[0] == '[')
-        {
-            int count = 1;
-            while (result[count] != ']')
-            {
-                toOutput += result[count];
-                count++;
-            }
-        }
-        if (toOutput.Length == 10)
-        {
-            return toOutput[2..8];
-        }
-        else if (toOutput.Length == 9)
-        {
-            return toOutput[1..7];
-        }
-        return toOutput;
-    }
-
-    public static void CloseSocket()
-    {
-        socket.Shutdown(SocketShutdown.Both);
-        socket.Close();
-    }
-}
-
-   

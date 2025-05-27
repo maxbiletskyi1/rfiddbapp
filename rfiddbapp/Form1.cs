@@ -32,7 +32,8 @@ namespace rfiddbapp
 
     public class AccessChecker
     {
-        private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
+        //private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
+        private static readonly string connectionString = "server=192.168.60.10;user=LD;database=vigichantier;port=3306;password=Azerty77";
         private readonly MySqlConnection db = new MySqlConnection(connectionString);
         private readonly Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private static readonly IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("192.168.30.10"), 10001);
@@ -48,8 +49,11 @@ namespace rfiddbapp
         {
             try
             {
+                UpdateLabel("Waiting for connection...");
                 await db.OpenAsync();
+                Debug.WriteLine("BD Connecte!");
                 socket.Connect(endpoint);
+                Debug.WriteLine("Lecteur Connecte!");
                 UpdateLabel("Connected - Waiting for RFID");
             }
             catch (Exception ex)

@@ -33,6 +33,20 @@
             messageLbl = new Label();
             SuspendLayout();
             // 
+            // checkBtn
+            // 
+            checkBtn.Location = new Point(0, 0);
+            checkBtn.Name = "checkBtn";
+            checkBtn.Size = new Size(75, 23);
+            checkBtn.TabIndex = 7;
+            // 
+            // label1
+            // 
+            label1.Location = new Point(0, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(100, 23);
+            label1.TabIndex = 6;
+            // 
             // messageLbl
             // 
             messageLbl.AutoSize = true;
@@ -46,10 +60,12 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1307, 472);
+            ClientSize = new Size(982, 472);
             Controls.Add(messageLbl);
             Controls.Add(label1);
             Controls.Add(checkBtn);
+            MaximumSize = new Size(1500, 519);
+            MinimumSize = new Size(1000, 519);
             Name = "Form1";
             Text = "Vigichantier";
             Load += Form1_Load;

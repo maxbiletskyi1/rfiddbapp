@@ -38,10 +38,16 @@ namespace rfiddbapp
         private readonly Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private static readonly IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("192.168.30.10"), 10001);
         private readonly Label messageLabel;
+        private byte[] buffer = new byte[256];
 
         public AccessChecker(Label label)
         {
             messageLabel = label;
+        }
+
+        ~AccessChecker()
+        {
+            
         }
 
         //Fonction assyncrone pour initialiser la connexion a la base de données et au lecteur RFID
@@ -68,7 +74,7 @@ namespace rfiddbapp
         {
             try
             {
-                byte[] buffer = new byte[256];
+                
                 while (true)
                 {
                     int bytesReceived = socket.Receive(buffer);
@@ -81,6 +87,7 @@ namespace rfiddbapp
                         {
                             string accessResult = CheckAccess(id);
                             UpdateLabel(accessResult);
+                            Array.Clear(buffer, 0, buffer.Length);
                         }
                         else
                         {
@@ -89,7 +96,7 @@ namespace rfiddbapp
                         //Debug
                         Debug.WriteLine("Raw: " + result);
                         Debug.WriteLine("Processed: " + id);
-                        Task.Delay(8000).Wait();
+                        Task.Delay(3000).Wait();
                     }
                     
                 }
@@ -106,7 +113,7 @@ namespace rfiddbapp
             try
             {
                 // Requete avec espace réservé pour l'ID avec prevention des injections SQL
-                string query = "SELECT COUNT(*) FROM Badge WHERE id_Badge = @Id";
+                string query = "SELECT COUNT(*) FROM Badge WHERE idBadge = @Id";
 
                 //Declarer la commande SQL et la disposer automatiquement
                 using (var cmd = new MySqlCommand(query, db))
@@ -124,22 +131,6 @@ namespace rfiddbapp
             }
         }
 
-        // Fonction pour accepter la plage de réception
-        /*private string checkReception(string input)
-        {
-            if (string.IsNullOrEmpty(input) || input[0] != '[') return "";
-            int start = 1;
-            int length = input.IndexOf(']') - 1;
-            if (length <= 0) return "";
-            string id = input.Substring(start, length);
-            return id.Length switch
-            {
-                10 => id.Substring(2, 6),
-                9 => id.Substring(1, 6),
-                _ => ""
-            };
-        }*/
-
         // Fonction pour parser l'ID du badge
         private (string id, int receptionLevel) ParseId(string input)
         {
@@ -155,7 +146,7 @@ namespace rfiddbapp
             {
                 if (!tag.EndsWith("]")) continue; // Skip incomplete tags
                 string rawId = tag.TrimEnd(']'); //remove ]
-                if (rawId.Length < 2) continue;
+                //if (rawId.Length < 2) continue;
 
                 // Check reception level (first two characters)
                 string receptionHex = rawId.Substring(0, 2);

@@ -276,3 +276,69 @@ Raw: [8B0611FD01][A1070F7501]
 Processed: 0611FD
 The program '[2708] rfiddbapp.exe' has exited with code 0 (0x0).
 
+
+Bugs fixed: 
+Didn't scan if 1 tag
+Too slow
+
+BD Connecte!
+Lecteur Connecte!
+Raw: [710611FD01][BE070F7401][710611FD01]
+Processed: 0611FD
+Raw: [710611FD01]
+Processed: 0611FD
+Raw: [BD070F7401]
+Processed: 
+Raw: [
+Processed: 
+Raw: 710611FD01]
+Processed: 0611FD
+Raw: [
+Processed: 
+Raw: BD070F7401][700611FD01][BB070F7401]
+Processed: 0611FD
+Raw: [B8070F7401]
+Processed: 
+Raw: [9E070F7401][78070F7401][72070F7401]
+Processed: 070F74
+The thread '.NET TP Worker' (16984) has exited with code 0 (0x0).
+Raw: [70070F7401][A3070F7501][960611FD01][71070F7401]
+Processed: 070F74
+Raw: [72070F7401][74070F7401][71070F7401]
+Processed: 070F74
+Raw: [74070F7401][74070F7401][B30611FD01][6F070F7401]
+Processed: 070F74
+Raw: [B8070F7501][70070F7401][70070F7401]
+Processed: 070F74
+Raw: [6F070F7401][74070F7401][70070F7401]
+Processed: 070F74
+Raw: [AF0611FD01][70070F7401]
+Processed: 070F74
+Raw: [70070F7401][71070F7401][71070F7401]
+Processed: 070F74
+Raw: [74070F7401][92070F7401]
+Processed: 070F74
+Raw: [93070F7401][AF0611FD01][A0070F7401]
+Processed: 070F74
+Raw: [BC070F7401]
+Processed: 
+Raw: [
+Processed: 
+Raw: B20611FD01][70070F7501]
+Processed: 070F75
+Raw: [B8070F7401]
+Processed: 
+The thread '.NET TP Worker' (19220) has exited with code 0 (0x0).
+Raw: [BB070F7401][B10611FD01]
+Processed: 
+Raw: [6E070F7501]
+Processed: 070F75
+The thread 1428 has exited with code 0 (0x0).
+Raw: [
+Processed: 
+Raw: B00611FD01][6E070F7501]
+Processed: 070F75
+Raw: [
+Processed: 
+The program '[19732] rfiddbapp.exe' has exited with code 0 (0x0).
+

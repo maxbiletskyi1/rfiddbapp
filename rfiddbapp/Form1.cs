@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Google.Protobuf.WellKnownTypes;
 
 namespace rfiddbapp
 {
@@ -28,6 +29,16 @@ namespace rfiddbapp
             await accessChecker.InitializeAsync();
             await Task.Run(() => accessChecker.StartReadingRFID());
         }
+
+        private async void btnHistorique_Click(object sender, EventArgs e)
+        {
+            await AdminWindow();
+        }
+        private async Task AdminWindow()
+        {
+            Form2 adminWindow = new Form2(accessChecker);
+            adminWindow.Show();
+        }
     }
 
     public class AccessChecker
@@ -35,6 +46,7 @@ namespace rfiddbapp
         //private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
         private static readonly string connectionString = "server=192.168.60.10;user=LD;database=vigichantier;port=3306;password=Azerty77";
         private readonly MySqlConnection db = new MySqlConnection(connectionString);
+        public MySqlConnection DbConnection => db;
         private readonly Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private static readonly IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("192.168.30.10"), 10001);
         private readonly Label messageLabel;
@@ -81,12 +93,18 @@ namespace rfiddbapp
                     if (bytesReceived > 0)
                     {
                         string result = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
-                         
+
                         (string id, int receptionLevel) = ParseId(result);
-                        if (receptionLevel <= 160 && !string.IsNullOrEmpty(id)) 
+                        //if (receptionLevel <= 160 && !string.IsNullOrEmpty(id)) 
+                        if (!string.IsNullOrEmpty(id))
                         {
                             string accessResult = CheckAccess(id);
                             UpdateLabel(accessResult);
+
+                            //Sauvegarder 
+                           // sauvegarderPassage();
+
+                            //Clear buffer 
                             Array.Clear(buffer, 0, buffer.Length);
                         }
                         else
@@ -96,7 +114,7 @@ namespace rfiddbapp
                         //Debug
                         Debug.WriteLine("Raw: " + result);
                         Debug.WriteLine("Processed: " + id);
-                        Task.Delay(3000).Wait();
+                        Task.Delay(5000).Wait();
                     }
                     
                 }
@@ -107,7 +125,7 @@ namespace rfiddbapp
             }
         }
 
-        // Fonction pour vérifier l'accès avec la BDD
+        // Fonction pour vérifier l'accès
         private string CheckAccess(string id)
         {
             try
@@ -121,7 +139,7 @@ namespace rfiddbapp
                     // Remplacer le paramètre ID avec la valeur de l'ID la maniere securisee 
                     cmd.Parameters.AddWithValue("@Id", id);
                     int count = Convert.ToInt32(cmd.ExecuteScalar());
-                    // If court: ? = true, : = false 
+                    // If count: ? = true, : = false 
                     return count > 0 ? "Access Allowed " + id : "Access Denied " + id;
                 }
             }
@@ -148,12 +166,12 @@ namespace rfiddbapp
                 string rawId = tag.TrimEnd(']'); //remove ]
                 //if (rawId.Length < 2) continue;
 
-                // Check reception level (first two characters)
+                // RECEPTION FILTER
                 string receptionHex = rawId.Substring(0, 2);
                 try
                 {
                     int receptionLevel = Convert.ToInt32(receptionHex, 16);
-                    if (receptionLevel <= 160)
+                    if (receptionLevel <= 150)
                     {
                         validTags.Add(rawId); // Keep tag without brackets
                     }

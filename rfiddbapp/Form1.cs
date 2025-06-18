@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using Google.Protobuf.WellKnownTypes;
+using Mysqlx.Crud;
+using static Mysqlx.Crud.Order.Types;
 
 namespace rfiddbapp
 {
@@ -43,14 +45,15 @@ namespace rfiddbapp
 
     public class AccessChecker
     {
-        //private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
-        private static readonly string connectionString = "server=192.168.60.10;user=LD;database=vigichantier;port=3306;password=Azerty77";
+        private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
+        //private static readonly string connectionString = "server=192.168.60.10;user=LD;database=vigichantier;port=3306;password=Azerty77";
         private readonly MySqlConnection db = new MySqlConnection(connectionString);
         public MySqlConnection DbConnection => db;
         private readonly Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private static readonly IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("192.168.30.10"), 10001);
         private readonly Label messageLabel;
         private byte[] buffer = new byte[256];
+        string id = "";
 
         public AccessChecker(Label label)
         {
@@ -89,10 +92,13 @@ namespace rfiddbapp
                 
                 while (true)
                 {
-                    int bytesReceived = socket.Receive(buffer);
+                    //int bytesReceived = socket.Receive(buffer);
+                    int bytesReceived = 5;
                     if (bytesReceived > 0)
                     {
                         string result = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
+                        //Debug
+                        //string result = "[900611FD01][920611FD01][930611FD01][930611FD01][900611FD01][910611FD01][900611FD01][900611FD01][8F0611FD01]";
 
                         (string id, int receptionLevel) = ParseId(result);
                         //if (receptionLevel <= 160 && !string.IsNullOrEmpty(id)) 
@@ -102,7 +108,7 @@ namespace rfiddbapp
                             UpdateLabel(accessResult);
 
                             //Sauvegarder 
-                           // sauvegarderPassage();
+                            sauvegarderPassage();
 
                             //Clear buffer 
                             Array.Clear(buffer, 0, buffer.Length);
@@ -122,6 +128,47 @@ namespace rfiddbapp
             catch (Exception ex)
             {
                 UpdateLabel($"RFID reading error: {ex.Message}");
+            }
+        }
+
+        private int GetTravailleur(string badgeId)
+        {
+            int travailleurId;
+            string query = "SELECT idTravailleur FROM Badge WHERE idBadge = @Id";
+            using (var cmd = new MySqlCommand(query, db))
+            {
+                cmd.Parameters.AddWithValue("@Id", badgeId);
+                object result = cmd.ExecuteScalar();
+                if (result != null)
+                {
+                    travailleurId = Convert.ToInt32(result);
+                }
+                else
+                {
+                    travailleurId = 0;
+                }
+                return travailleurId;
+            }
+        }
+
+        private void sauvegarderPassage()
+        {
+            try
+            {
+                string query = "INSERT INTO historiquepassage (idTravailleur, datePassage, Direction) VALUES (@IdTravailleur, @DatePassage, @Direction)";
+                //string query = "INSERT INTO historiquepassage (idTravailleur, datePassage) VALUES (@IdTravailleur, @DatePassage)";
+                int idTravailleur = GetTravailleur(id);
+                using (var cmd = new MySqlCommand(query, db))
+                {
+                    cmd.Parameters.AddWithValue("@IdTravailleur", idTravailleur);
+                    cmd.Parameters.AddWithValue("@DatePassage", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@Direction", "Entree");
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                UpdateLabel($"Error writing to historiquepassage: {ex.Message}");
             }
         }
 
@@ -200,7 +247,7 @@ namespace rfiddbapp
             }
 
             // Extract ID (e.g., 0611FD from A00611FD01)
-            string id = "";
+            
             if (lastTag.Length == 10) // e.g., A00611FD01
             {
                 id = lastTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars

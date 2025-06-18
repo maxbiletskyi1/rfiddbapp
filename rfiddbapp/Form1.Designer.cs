@@ -53,6 +53,7 @@
             messageLbl.AutoSize = true;
             messageLbl.Font = new Font("Segoe UI", 24F);
             messageLbl.Location = new Point(328, 173);
+            messageLbl.MaximumSize = new Size(1000, 0);
             messageLbl.Name = "messageLbl";
             messageLbl.Size = new Size(0, 54);
             messageLbl.TabIndex = 5;
@@ -76,7 +77,7 @@
             Controls.Add(messageLbl);
             Controls.Add(label1);
             Controls.Add(checkBtn);
-            MaximumSize = new Size(1499, 516);
+            MaximumSize = new Size(1500, 516);
             MinimumSize = new Size(1000, 516);
             Name = "Form1";
             Text = "Vigichantier";

@@ -32,6 +32,7 @@
             label1 = new Label();
             messageLbl = new Label();
             btnHistorique = new Button();
+            btnVehicule = new Button();
             SuspendLayout();
             // 
             // checkBtn
@@ -68,11 +69,22 @@
             btnHistorique.UseVisualStyleBackColor = true;
             btnHistorique.Click += btnHistorique_Click;
             // 
+            // btnVehicule
+            // 
+            btnVehicule.Location = new Point(12, 70);
+            btnVehicule.Name = "btnVehicule";
+            btnVehicule.Size = new Size(118, 43);
+            btnVehicule.TabIndex = 9;
+            btnVehicule.Text = "Vehicule";
+            btnVehicule.UseVisualStyleBackColor = true;
+            btnVehicule.Click += btnVehicule_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1481, 469);
+            Controls.Add(btnVehicule);
             Controls.Add(btnHistorique);
             Controls.Add(messageLbl);
             Controls.Add(label1);
@@ -92,5 +104,6 @@
         private Label label1;
         private Label messageLbl;
         private Button btnHistorique;
+        private Button btnVehicule;
     }
 }

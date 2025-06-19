@@ -41,12 +41,18 @@ namespace rfiddbapp
             Form2 adminWindow = new Form2(accessChecker);
             adminWindow.Show();
         }
+
+        private async void btnVehicule_Click(object sender, EventArgs e)
+        {
+            Form3 vehicleWindow = new Form3(accessChecker);
+            vehicleWindow.Show();
+        }
     }
 
     public class AccessChecker
     {
-        private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
-        //private static readonly string connectionString = "server=192.168.60.10;user=LD;database=vigichantier;port=3306;password=Azerty77";
+        //private static readonly string connectionString = "server=localhost;user=root;database=vigichantier;port=3308;password=Makson2004belka!";
+        private static readonly string connectionString = "server=192.168.60.10;user=LD;database=vigichantier;port=3306;password=Azerty77";
         private readonly MySqlConnection db = new MySqlConnection(connectionString);
         public MySqlConnection DbConnection => db;
         private readonly Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -54,6 +60,8 @@ namespace rfiddbapp
         private readonly Label messageLabel;
         private byte[] buffer = new byte[256];
         string id = "";
+        private int? idTravailleur;
+        public int? travailleurIdentifiant => idTravailleur;
 
         public AccessChecker(Label label)
         {
@@ -92,13 +100,15 @@ namespace rfiddbapp
                 
                 while (true)
                 {
-                    //int bytesReceived = socket.Receive(buffer);
-                    int bytesReceived = 5;
+                    int bytesReceived = socket.Receive(buffer);
+                    //Debug
+                    //int bytesReceived = 5;
                     if (bytesReceived > 0)
                     {
                         string result = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
                         //Debug
-                        //string result = "[900611FD01][920611FD01][930611FD01][930611FD01][900611FD01][910611FD01][900611FD01][900611FD01][8F0611FD01]";
+                        //string result = "[6FAAAAAA01][7F0611FA01][4A0611FD01][930611FD01][5A06BBFD01][908ED19A01][910611FD01][900611FD01][900611FD01][8F0611FD01]";
+                        //string result = "[BC070F7401]";
 
                         (string id, int receptionLevel) = ParseId(result);
                         //if (receptionLevel <= 160 && !string.IsNullOrEmpty(id)) 
@@ -108,6 +118,7 @@ namespace rfiddbapp
                             UpdateLabel(accessResult);
 
                             //Sauvegarder 
+                            idTravailleur = GetTravailleur(id);
                             sauvegarderPassage();
 
                             //Clear buffer 
@@ -115,7 +126,7 @@ namespace rfiddbapp
                         }
                         else
                         {
-                            UpdateLabel("Pas de tag a proximite");
+                            UpdateLabel("No tags nearby...");
                         }
                         //Debug
                         Debug.WriteLine("Raw: " + result);
@@ -131,23 +142,53 @@ namespace rfiddbapp
             }
         }
 
-        private int GetTravailleur(string badgeId)
+        public int? GetTravailleur(string badgeId)
         {
-            int travailleurId;
-            string query = "SELECT idTravailleur FROM Badge WHERE idBadge = @Id";
+            try
+            {
+                string query = "SELECT idTravailleur FROM Badge WHERE idBadge = @Id";
+                using (var cmd = new MySqlCommand(query, db))
+                {
+                    cmd.Parameters.AddWithValue("@Id", badgeId);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && result is int)
+                    {
+                        int travailleurId = Convert.ToInt32(result);
+                        // Verify idTravailleur exists in travailleur table
+                        string verifyQuery = "SELECT COUNT(*) FROM travailleur WHERE idTravailleur = @IdTravailleur";
+                        using (var verifyCmd = new MySqlCommand(verifyQuery, db))
+                        {
+                            verifyCmd.Parameters.AddWithValue("@IdTravailleur", travailleurId);
+                            int count = Convert.ToInt32(verifyCmd.ExecuteScalar());
+                            if (count > 0)
+                            {
+                                return travailleurId;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        UpdateLabel($"Access Denied: {badgeId}");
+                        return null;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                UpdateLabel($"Erreur GetTravailleur: {ex.Message}");
+                return null;
+            }
+        }
+
+        private int GetNumberPassage(string badgeId)
+        {
+            string query = "SELECT COUNT(*) FROM historiquepassage WHERE idTravailleur = @idTravailleur";
             using (var cmd = new MySqlCommand(query, db))
             {
-                cmd.Parameters.AddWithValue("@Id", badgeId);
-                object result = cmd.ExecuteScalar();
-                if (result != null)
-                {
-                    travailleurId = Convert.ToInt32(result);
-                }
-                else
-                {
-                    travailleurId = 0;
-                }
-                return travailleurId;
+                cmd.Parameters.AddWithValue("@idTravailleur", idTravailleur);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                return count;
             }
         }
 
@@ -157,13 +198,28 @@ namespace rfiddbapp
             {
                 string query = "INSERT INTO historiquepassage (idTravailleur, datePassage, Direction) VALUES (@IdTravailleur, @DatePassage, @Direction)";
                 //string query = "INSERT INTO historiquepassage (idTravailleur, datePassage) VALUES (@IdTravailleur, @DatePassage)";
-                int idTravailleur = GetTravailleur(id);
+                int count = GetNumberPassage(id);
                 using (var cmd = new MySqlCommand(query, db))
                 {
                     cmd.Parameters.AddWithValue("@IdTravailleur", idTravailleur);
                     cmd.Parameters.AddWithValue("@DatePassage", DateTime.Now);
-                    cmd.Parameters.AddWithValue("@Direction", "Entree");
-                    cmd.ExecuteNonQuery();
+                    if (idTravailleur != null)
+                    {
+                        if (count % 2 == 0)
+                        {
+                            cmd.Parameters.AddWithValue("@Direction", "Entree");
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@Direction", "Sortie");
+                        }
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@Direction", "Entree");
+                    }
+
+                        cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -199,14 +255,14 @@ namespace rfiddbapp
         // Fonction pour parser l'ID du badge
         private (string id, int receptionLevel) ParseId(string input)
         {
+            int receptionLevelMin = 150;
+            string validTag = "";
             if (string.IsNullOrEmpty(input)) return ("", 0);
 
             // Separate tags based on '[' and put inside the array
             string[] tags = input.Split(new[] { '[' }, StringSplitOptions.RemoveEmptyEntries);
             if (tags.Length < 1) return ("", 0); //If 0 tags return 0
 
-            // Filter each tag with reception level <= 160
-            List<string> validTags = new List<string>();
             foreach (string tag in tags)
             {
                 if (!tag.EndsWith("]")) continue; // Skip incomplete tags
@@ -220,7 +276,13 @@ namespace rfiddbapp
                     int receptionLevel = Convert.ToInt32(receptionHex, 16);
                     if (receptionLevel <= 150)
                     {
-                        validTags.Add(rawId); // Keep tag without brackets
+                        //validTags.Add(rawId);
+
+                        if (receptionLevel < receptionLevelMin)
+                        {
+                            receptionLevelMin = receptionLevel;
+                            validTag = rawId; // Keep the tag with the lowest reception level
+                        }
                     }
                 }
                 catch
@@ -228,40 +290,22 @@ namespace rfiddbapp
                     continue; // Skip tags with invalid hex
                 }
             }
-
-            // Get the last tag from valid tags
-            if (validTags.Count < 1) return ("", 0); // No valid tags
-            string lastTag = validTags[validTags.Count - 1];
-            if (lastTag.Length < 2) return ("", 0);
-
-            // Extract reception level
-            string receptionHexFinal = lastTag.Substring(0, 2);
-            int receptionLevelFinal;
-            try
-            {
-                receptionLevelFinal = Convert.ToInt32(receptionHexFinal, 16);
-            }
-            catch
-            {
-                return ("", 0);
-            }
-
-            // Extract ID (e.g., 0611FD from A00611FD01)
             
-            if (lastTag.Length == 10) // e.g., A00611FD01
+            if (validTag.Length == 10) // e.g., A00611FD01
             {
-                id = lastTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
+                id = validTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
             }
-            else if (lastTag.Length == 9) // e.g., 90611FD01
+            else if (validTag.Length == 9) // e.g., 90611FD01
             {
-                id = lastTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
+                id = validTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
             }
-            else if (lastTag.Length == 8) // e.g., 060611FD
+            else if (validTag.Length == 8) // e.g., 060611FD
             {
-                id = lastTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
+                id = validTag.Substring(2, 6); // Skip first 2 chars (reception), take 6 chars
             }
+            
 
-            return (id, receptionLevelFinal);
+            return (id, receptionLevelMin);
         }
 
 

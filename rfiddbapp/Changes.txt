@@ -1,0 +1,10 @@
+Added:
+Accepting null values
+Show field in red if the tag is unknown: null
+Show vehicles table
+Accepting only tags where idTravailleur is present in the database.
+
+
+Fixed:
+Data-saving issues.
+Parser not taking the closest tag.

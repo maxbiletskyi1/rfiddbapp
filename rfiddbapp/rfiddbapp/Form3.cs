@@ -5,21 +5,17 @@ using System.Windows.Forms;
 
 namespace rfiddbapp
 {
-    public partial class Form2 : Form
+    public partial class Form3 : Form
     {
         private readonly AccessChecker accessChecker;
 
-        public Form2(AccessChecker checker)
+        public Form3(AccessChecker checker)
         {
             InitializeComponent();
             accessChecker = checker;
         }
 
-        private void Form2_Load(object sender, EventArgs e)
-        {
-            ConfigureDataGridView();
-            LoadData();
-        }
+
 
         private void ConfigureDataGridView()
         {
@@ -49,7 +45,7 @@ namespace rfiddbapp
                     }
                 }
 
-                string query = "SELECT idPassage, idTravailleur, datePassage, Direction FROM historiquepassage";
+                string query = "SELECT Matriculation, MarqueV, ModeleV, Description FROM vehicule";
                 using (MySqlCommand cmd = new MySqlCommand(query, accessChecker.DbConnection))
                 {
                     using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
@@ -65,10 +61,6 @@ namespace rfiddbapp
 
                         // Bind DataTable to DataGridView
                         dataGridView1.DataSource = dataTable;
-
-                        // Log column names for verification
-                        //string columns = string.Join(", ", dataTable.Columns.Cast<DataColumn>().Select(c => c.ColumnName));
-                        //MessageBox.Show($"Columns in DataTable: {dataGridView1.Columns.Count}");
                     }
                 }
             }
@@ -76,6 +68,12 @@ namespace rfiddbapp
             {
                 MessageBox.Show($"Error loading data: {ex.Message}");
             }
+        }
+
+        private void Form3_Load(object sender, EventArgs e)
+        {
+            ConfigureDataGridView();
+            LoadData();
         }
 
         private void updateBtn_Click(object sender, EventArgs e)

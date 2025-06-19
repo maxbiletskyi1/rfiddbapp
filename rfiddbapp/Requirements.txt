@@ -1,0 +1,6 @@
+Hardware:
+ELA Coin ID
+ELA SCIEL READER IP2
+
+Software:
+MySQL or MariaDB database server
